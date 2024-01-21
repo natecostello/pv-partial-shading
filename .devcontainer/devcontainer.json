@@ -9,7 +9,7 @@
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "sudo apt update -y && sudo apt-get install libhdf5-dev -y && pip install --upgrade pip && pip install pvlib && pip install matplotlib && pip install jupyter && pip install nrel-pysam",
+	"postCreateCommand": "sudo apt update -y && sudo apt-get install libhdf5-dev -y && pip install --upgrade pip && pip install pvlib && pip install matplotlib && pip install jupyter && pip install nrel-pysam  && pip install pvmismatch",
 	// Configure tool-specific properties.
 	"customizations": {
 		"vscode": {
