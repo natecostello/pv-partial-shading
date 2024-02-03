@@ -52,10 +52,15 @@ def mppt(model_chain):
     def calculate_power(v_mp, v_oc, p_mp):
         p_ac = np.empty_like(p_mp)
         v_batt = model_chain.system.inverter_parameters.get('v_batt', 14.2)
-        v_start_delta = v_batt + model_chain.system.inverter_parameters.get('v_start_delta', 5.0)
-        v_continue_delta = v_batt + model_chain.system.inverter_parameters.get('v_continue_delta', 1.0)
+        print("v_batt: ", v_batt)
+        v_start_delta = model_chain.system.inverter_parameters.get('v_start_delta', 5.0)
+        print("v_start_delta: ", v_start_delta)
+        v_continue_delta = model_chain.system.inverter_parameters.get('v_continue_delta', 1.0)
+        print("v_continue_delta: ", v_continue_delta)
         v_start = v_batt + v_start_delta
+        print("v_start: ", v_start)
         v_continue = v_batt + v_continue_delta
+        print("v_continue: ", v_continue)
         mppt_eff = model_chain.system.inverter_parameters.get('mppt_eff', 1.0)
         r_batt_wire = model_chain.system.inverter_parameters.get('r_batt_wire', 0)
 
@@ -70,6 +75,13 @@ def mppt(model_chain):
             ohmic_loss_out = i_out**2 * r_batt_wire
             voltage_drop_out = i_out * r_batt_wire
             v_mppt_in = vmp - vdrop_in
+
+            # print("vmp: ", vmp)
+            # print("voc: ", voc)
+            # print("vdrop_in: ", vdrop_in)
+            # print("v_continue: ", v_continue)
+            # print("v_mppt_in: ", v_mppt_in)
+            # print("voltage_drop_out: ", voltage_drop_out)
                 
             if on:
                 if v_mppt_in < v_continue + voltage_drop_out:
