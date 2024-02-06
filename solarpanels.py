@@ -1,33 +1,5 @@
 import pvlib
 
-RICH_SOLAR_12V = {
-    'Name': 'Rich Solar 12V', 
-    'Technology': 'Mono-c-Si', 
-    'Bifacial': 0, 
-    'STC': 200.0862, 
-    'PTC': 178.5, 
-    'A_c': 2.554, 
-    'Length': 1.58, 
-    'Width': 0.808, 
-    'N_s': 36.0, 
-    'I_sc_ref': 11.32, 
-    'V_oc_ref': 22.81, 
-    'I_mp_ref': 10.74, 
-    'V_mp_ref': 18.63, 
-    'alpha_sc': 0.006962, 
-    'beta_oc': -0.080428, 
-    'gamma_r': -0.4567, 
-    'T_NOCT': 47.6, 
-    'irrad_ref': 1000, 
-    'temp_ref': 25, 
-    'a_ref': 0.973804158972974, 
-    'I_L_ref': 11.44031204496401, 
-    'I_o_ref': 7.608255760344541e-10, 
-    'R_s': 0.12270248066631148, 
-    'R_sh_ref': 197.25444549468273, 
-    'Adjust': 7.669332700388107
-    }
-
 def get_rich_solar_MEGA200Max_24V():
     module_parameters = {
         'Name': 'Rich Solar MEGA200Max', 
