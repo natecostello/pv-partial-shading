@@ -31,7 +31,10 @@ def mppt(model_chain):
 
     Side Effects:
         - Modifies `model_chain.results.ac` with the calculated MPPT output power.
-        - Modifies `model_chain.results.dc_ohmic_losses` when MPPT output is zero.
+        - Modifies `model_chain.results.dc_ohmic_losses` to add `p_bat_wire_loss`, 
+        and `v_batt_wire_drop`  
+        - Modifies `model_chain.results.dc_ohmic_losses` by setting all values to
+        zero during times when MPPT output is zero.
         - This function does not directly modify input parameters but updates the
           `model_chain` instance's properties based on calculations.
 
@@ -51,6 +54,8 @@ def mppt(model_chain):
     
     def calculate_power(v_mp, v_oc, p_mp):
         p_ac = np.empty_like(p_mp)
+        v_batt_wire_drop = np.empty_like(p_mp)
+        p_batt_wire_loss = np.empty_like(p_mp)
         v_batt = model_chain.system.inverter_parameters.get('v_batt', 14.2)
         v_start_delta = model_chain.system.inverter_parameters.get('v_start_delta', 5.0)
         v_continue_delta = model_chain.system.inverter_parameters.get('v_continue_delta', 1.0)
@@ -68,7 +73,9 @@ def mppt(model_chain):
             p_mppt_out = mppt_eff * p_mppt_in
             i_out = calculate_mppt_output_current(p_mppt_out, v_batt, r_batt_wire)
             ohmic_loss_out = i_out**2 * r_batt_wire
+            p_batt_wire_loss[i] = ohmic_loss_out
             voltage_drop_out = i_out * r_batt_wire
+            v_batt_wire_drop[i] = voltage_drop_out
             v_mppt_in = vmp - vdrop_in
 
             # print("vmp: ", vmp)
@@ -90,6 +97,14 @@ def mppt(model_chain):
                     p_ac[i] = p_mppt_out - ohmic_loss_out
                 else:
                     p_ac[i] = 0
+        
+        if isinstance(p_mp, pd.Series):
+            p_batt_wire_loss = pd.Series(p_batt_wire_loss, index=p_mp.index, name='p_batt_wire_loss')
+            p_batt_wire_loss.name = 'p_batt_wire_loss'
+            v_batt_wire_drop = pd.Series(v_batt_wire_drop, index=p_mp.index, name='v_batt_wire_drop')
+            v_batt_wire_drop.name = 'v_batt_wire_drop'
+            model_chain.results.dc_ohmic_losses = pd.concat([model_chain.results.dc_ohmic_losses, p_batt_wire_loss, v_batt_wire_drop], axis=1)
+
                 
         if isinstance(p_mp, pd.Series):
             p_ac = pd.Series(p_ac, index=p_mp.index)
@@ -152,12 +167,16 @@ def pv_wire_loss(model_chain):
         are not present.
 
     Side Effects:
-        - Modifies `model_chain.results.dc_ohmic_losses`
+        - Modifies `model_chain.results.dc_ohmic_losses` to a pandas DataFrame with columns
+            `p_pv_wire_loss` and `v_pv_wire_drop` based on the above calculations.
         
     Notes:
         The results are stored as a pandas Dataframes or a tuple of Dataframes with the same
         index as `model_chain.results.dc`, facilitating integration with further
         PV system analysis or performance calculations.
+
+        The results may be modified by the `mppt` later in the chain to zero out ohmic losses
+        and voltage drops when the MPPT is not operating and thus PV current is zero.
     """
     #TODO We should think about this implementation a bit more.  It assumes ohmic loss when
     # at times the MPPT will not be operating and thus there is no real loss.
