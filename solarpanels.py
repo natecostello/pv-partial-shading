@@ -23,6 +23,7 @@ def compare_two_diode_solution_x(module_params, x):
     return report_string
 
 def compare_two_diode_solution(module_params):
+    print(module_params['Name'])
     pvc = pvmismatch.pvcell.PVcell(Isat1_T0=module_params['Isat1_T0'], Isat2_T0=module_params['Isat2_T0'], Rs=module_params['Rs_2d'], Rsh=module_params['Rsh_2d'], Isc0_T0=module_params['I_sc_ref'], alpha_Isc=module_params['alpha_sc_percent'])
     mpp = np.argmax(pvc.Pcell)  # find the index of the max power point
     specff = module_params['I_mp_ref']*module_params['V_mp_ref'] / module_params['I_sc_ref'] / module_params['V_oc_ref']
@@ -195,19 +196,29 @@ def calc_two_diode_params(i_sc_ref, v_oc_ref, i_mp_ref, v_mp_ref, n_s, parallel_
         return isat1, isat2, rs, rsh
 
     args = (i_sc_ref, v_oc_ref, i_mp_ref, v_mp_ref, n_s, parallel_strings, temp_ref)
-
+    # First Guess
+    #x = (1.902e-11, 5.947e-07, 0.005814, 16.4)
     # First Calculation
     x, sol = gen_two_diode(*args)
-
+    
+    # Iteration leads to zero values for 12V Rich Solar panel, so we accept the inaccurate first calc
     # Iterate
-    x = last_guess(sol)
-    x, sol = gen_two_diode(*args, x0=x)
-    x = last_guess(sol)
-    x, sol = gen_two_diode(*args, x0=x)
-    x = last_guess(sol)
-    x, sol = gen_two_diode(*args, x0=x)
-    x = last_guess(sol)
-    x, sol = gen_two_diode(*args, x0=x)
+    # x = last_guess(sol)
+    # x, sol = gen_two_diode(*args, x0=x)
+    # print('x=', x)
+    
+    # x = last_guess(sol)
+    # x, sol = gen_two_diode(*args, x0=x)
+    # print('x=', x)
+    
+    # x = last_guess(sol)
+    # x, sol = gen_two_diode(*args, x0=x)
+    # print('x=', x)
+    
+    # x = last_guess(sol)
+    # x, sol = gen_two_diode(*args, x0=x)
+    # print('x=', x)
+    
 
     return x
 
@@ -293,9 +304,9 @@ def get_rich_solar_MEGA200_12V():
         'Width': 0.681, 
         'N_s': 36, 
         'I_sc_ref': 10.2, 
-        'V_oc_ref': 24.3, 
-        'I_mp_ref': 9.8, 
-        'V_mp_ref': 20.4, 
+        'V_oc_ref': 24.3,  #spec is 24.3
+        'I_mp_ref': 9.8, #spec is 9.8
+        'V_mp_ref': 20.4, #pec is 20.4 
         'alpha_sc': 0.00918,  # A/C = 0.0005*10.2*1.8
         'alpha_sc_percent': 0.0009, # 1/C = 0.0005*1.8  
         'beta_oc': -0.12685,  # V/C = -0.0029*24.3*1.8
